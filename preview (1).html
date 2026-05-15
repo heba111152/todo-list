@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To Do List</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family: Arial, sans-serif;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  background-image:url('https://img.pikbest.com/backgrounds/20220203/artificial-intelligence-machine-data-technology-concept-banner-webpage-ui-illustration_6262239.jpg!w700wp');
+
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+}
+
+.app{
+  width:400px;
+  background:rgba(255,255,255,0.92);
+  backdrop-filter:blur(8px);
+
+  padding:22px;
+  border-radius:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+h2{
+  text-align:center;
+  margin-bottom:20px;
+  color:#333;
+  font-size:32px;
+}
+
+.title-icon{
+  color:#667eea;
+}
+
+.input-box{
+  display:flex;
+  gap:10px;
+}
+
+input{
+  flex:1;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  outline:none;
+  font-size:16px;
+}
+
+input:focus{
+  border-color:#667eea;
+}
+
+.add{
+  width:52px;
+  border:none;
+  border-radius:12px;
+  background:#667eea;
+  color:white;
+  cursor:pointer;
+  font-size:18px;
+}
+
+ul{
+  list-style:none;
+  margin-top:20px;
+}
+
+li{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px;
+  margin-top:12px;
+  border-radius:16px;
+}
+
+.pending{
+  background:#ffe5e5;
+  border-right:6px solid #ff4d4d;
+}
+
+
+.done{
+  background:#e8fff0;
+  border-right:6px solid #2ecc71;
+}
+
+.done .task-text{
+  text-decoration:line-through;
+  opacity:0.6;
+}
+
+.task-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.task-text{
+  font-size:17px;
+  color:#333;
+}
+
+.delete{
+  border:none;
+  background:none;
+  color:#ff4d4d;
+  font-size:20px;
+  cursor:pointer;
+}
+
+
+
+.switch{
+  position:relative;
+  width:50px;
+  height:28px;
+}
+
+.switch input{
+  display:none;
+}
+
+.slider{
+  position:absolute;
+  inset:0;
+  background:#ddd;
+  border-radius:30px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.slider::before{
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  left:3px;
+  top:3px;
+  background:white;
+  border-radius:50%;
+  transition:0.3s;
+}
+
+.switch input:checked + .slider{
+  background:#667eea;
+}
+
+.switch input:checked + .slider::before{
+  transform:translateX(22px);
+}
+
+.empty{
+  text-align:center;
+  color:#666;
+  margin-top:20px;
+}
+
+.stats{
+  margin-top:20px;
+  display:flex;
+  justify-content:space-between;
+  background:#f5f5f5;
+  padding:12px;
+  border-radius:12px;
+}
+
+.stats div{
+  text-align:center;
+  flex:1;
+}
+
+.stats span{
+  display:block;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.total span{
+  color:#667eea;
+}
+
+.completed span{
+  color:#2ecc71;
+}
+
+.pending-stat span{
+  color:#ff4d4d;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <h2>
+    <i class="fa-solid fa-list-check title-icon"></i>
+    My Tasks
+  </h2>
+
+  <div class="input-box">
+
+    <input id="taskInput" placeholder="Add a task..." />
+
+    <button class="add" onclick="addTask()">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+
+  </div>
+
+  <ul id="list"></ul>
+
+  <div class="stats">
+
+    <div class="total">
+      <span id="total">0</span>
+      Total
+    </div>
+
+    <div class="completed">
+      <span id="completed">0</span>
+      Done
+    </div>
+
+    <div class="pending-stat">
+      <span id="pending">0</span>
+      Pending
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+let tasks = [];
+
+function addTask(){
+
+  let input = document.getElementById("taskInput");
+
+  let text = input.value.trim();
+
+  if(text === "") return;
+
+  tasks.push({
+    id: Date.now(),
+    text: text,
+    done: false
+  });
+
+  input.value = "";
+
+  render();
+}
+
+function toggleTask(id){
+
+  let task = tasks.find(t => t.id === id);
+
+  task.done = !task.done;
+
+  render();
+}
+
+function deleteTask(id){
+
+  tasks = tasks.filter(t => t.id !== id);
+
+  render();
+}
+
+function render(){
+
+  let list = document.getElementById("list");
+
+  list.innerHTML = "";
+
+  if(tasks.length === 0){
+
+    list.innerHTML = `
+      <div class="empty">
+        ✨ No tasks yet
+      </div>
+    `;
+  }
+
+  tasks.forEach(t => {
+
+    let li = document.createElement("li");
+
+    li.className = t.done ? "done" : "pending";
+
+    li.innerHTML = `
+
+      <div class="task-left">
+
+        <label class="switch">
+          <input 
+            type="checkbox"
+            ${t.done ? "checked" : ""}
+            onchange="toggleTask(${t.id})"
+          >
+          <span class="slider"></span>
+        </label>
+
+        <span class="task-text">
+          ${t.text}
+        </span>
+
+      </div>
+
+      <button class="delete" onclick="deleteTask(${t.id})">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+
+    `;
+
+    list.appendChild(li);
+
+  });
+
+  updateStats();
+}
+
+function updateStats(){
+
+  let total = tasks.length;
+
+  let completed = tasks.filter(t => t.done).length;
+
+  let pending = total - completed;
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("completed").textContent = completed;
+  document.getElementById("pending").textContent = pending;
+}
+
+document
+.getElementById("taskInput")
+.addEventListener("keydown", function(e){
+
+  if(e.key === "Enter"){
+    addTask();
+  }
+
+});
+
+render();
+
+</script>
+
+</body>
+</html>
